@@ -1,0 +1,39 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Feb 12 00:46:47 2019
+
+@author: Guillaume
+"""
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy import misc
+
+a = int(input("Enter A :"))
+
+x = np.linspace(-10, 10)
+def f(x):
+    return(a * (x**2))
+
+i= -10
+for i in range(-10,10):
+        print("Tangeante en x :",i)
+        x = np.linspace(-10, 10) 
+        y1 = a * (x**2)
+        y2 = misc.derivative(f,x)
+        plt.plot(x, y1,"r",label = "x carré")
+        plt.plot(x, y2,"b-",label = "dérivé")
+        tanprime = misc.derivative(f,i)
+        tannorm = a * (i**2)
+        tan = tanprime * (x-i) +tannorm
+        plt.plot(x, tan,"g",label = "tangente")
+        plt.legend()
+        plt.grid()
+        plt.show()
+        input('Press enter to continue: ')
+        
+        
+
+
+
+
+
