@@ -1,0 +1,110 @@
+import pymysql
+import pandas as pd
+import numpy
+from sklearn.dummy import DummyClassifier 
+from xgboost import XGBClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import roc_curve , auc
+# Connect to the database
+connection = pymysql.connect(
+host='localhost',
+user='root',
+passwd='gniay.ing2020',
+db='mlb',
+charset='utf8mb4'
+)
+
+#set cursor 
+cursor = connection.cursor()
+
+# load data
+data = "SELECT * FROM historic_2018"
+cursor.execute(data)
+data = pd.read_sql(data,con=connection)
+data = pd.DataFrame(data)
+data= data.drop(columns=['id','date','Score Home','Score Away'])
+dataset = data.values
+#Match à venir
+#Futurmatch = cursor.execute("SELECT count(Win) FROM Match where WIN = null")
+#Futurmatch = pd.read_sql(Futurmatch,con=connection)
+#Futurmatch = [item[0] for item in cursor.fetchall()]
+
+# split data into X and y
+
+param = {'max_depth': 2, 'eta': 1, 'silent': 1, 'objective': 'binary:logistic'}
+param['nthread'] = 4
+param['eval_metric'] = 'auc'
+
+# integer encode
+label_encoded_y = data.apply(LabelEncoder().fit_transform)
+X = label_encoded_y.iloc[:,0:2]
+Y = label_encoded_y.iloc[:,2]
+
+
+print('X :',X)
+print('Y :', Y)
+
+# split data into train and test sets
+seed = 40
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.33, random_state=seed)
+# fit model no training data
+
+model = XGBClassifier()
+model.fit(X_train, y_train)
+# make predictions for test data
+y_pred = model.predict(X_test)
+print('prediction',y_pred)
+predict = pd.DataFrame(y_pred).to_csv('predict sqlWin.csv')
+# evaluate predictions
+accuracy = accuracy_score(y_test, y_pred)
+
+print("Accuracy: %.2f%%" % (accuracy * 100.0))
+# Save prediction_df to csv
+predict = pd.DataFrame(y_pred).to_csv('predict sqlWin.csv')
+"""plt.pyplot.scatter(y_test, predictions,c ='red')
+plt.pyplot.xlabel('True Values')
+plt.pyplot.ylabel('Predictions')"""
+
+
+fpr_cl = dict()
+tpr_cl = dict()
+
+y_proba = model.predict_proba(X_test)
+print(y_proba)
+
+fpr_cl["Win predict"], tpr_cl["Win predict"], _ = roc_curve(
+    y_test == 1, y_proba[:, 0].ravel())
+
+
+plt.figure()
+for key in fpr_cl:
+    plt.plot(fpr_cl[key], tpr_cl[key], label=key,color = 'green')
+
+lw = 2
+plt.plot([0, 1], [0, 1], color='orange', lw=lw, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel("False positive")
+plt.ylabel("True positive")
+plt.title('ROC(s) with predict_proba')
+plt.legend(loc="lower right")
+
+"""Xhome = cursor.execute("Select Home from predict ")
+Xaway = cursor.execute("Select Away from predict ")
+predict = model.predict_proba([Xhome,Xaway])
+"""
+
+#predictions = [round(value) for value in y_proba]
+#print(predictions)
+# make predictions for test data
+# Save prediction_df to csv
+predict = pd.DataFrame(y_proba).to_csv('predict sqlWin.csv')
+# evaluate predictions
+#print(y_test)"""
+
+
