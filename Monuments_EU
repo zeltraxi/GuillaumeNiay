@@ -1,1 +1,14 @@
+library('xlsx')
+library(ggplot2)
+library(dplyr)
+library(leaflet)
 
+monument <- read.xlsx("C:\\Users\\Guillaume\\Documents\\esaip\\IR4\\Big Data\\Mongo DB\\script\\testrexcel.xlsx", sheetIndex = 1, header=TRUE,encoding="UTF-8", colClasses=NA)
+
+res <- leaflet() %>%     
+addTiles() %>%
+setView(lng = 2.292551, lat = 48.858255, zoom = 5)  %>%
+addMarkers(lng = monument$monument_lon, lat = monument$monument_lat,
+                     popup = monument$monument_nom, clusterOptions = markerClusterOptions())
+					 
+print(res)
