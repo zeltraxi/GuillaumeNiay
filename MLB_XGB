@@ -1,0 +1,158 @@
+import pymysql
+import pandas as pd
+import numpy
+from xgboost import XGBClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve , auc
+# Connect to the database
+connection = pymysql.connect(
+host='localhost',
+user='root',
+passwd='gniay.ing2020',
+db='mlb',
+charset='utf8mb4'
+)
+
+#set cursor 
+cursor = connection.cursor()
+"""#Merge data from Results
+i = cursor.execute("SELECT MIN(id) FROM results ")
+i = [item[0] for item in cursor.fetchall()]
+i= i[0]
+tab = cursor.execute("SELECT count(`Home Team`) FROM results")
+tab = [item[0] for item in cursor.fetchall()]
+for i in range (i,tab[0]+1) :
+    winH = cursor.execute("Select `Home Team` from results where id = %s AND `Pwin Home` > `Pwin Away` AND  `Home Team` = `Real Winner`",i)
+    winA = cursor.execute("Select `Away Team` from results where id = %s AND `Pwin Home` < `Pwin Away` AND  `Away Team` = `Real Winner`",i)
+    winner = cursor.execute("SELECT `Real Winner` FROM results WHERE id = %s",i)
+    if   winH == winner :
+        Win = 1
+    elif winA == winner :
+        Win = 1   
+    else:
+        Win = 0
+    #Select data needed
+    HT = cursor.execute("SELECT `Home Team` FROM results where id = %s",i)
+    HT =[item[0] for item in cursor.fetchall()]
+    HO = cursor.execute("SELECT `Home Offense` FROM results where id = %s",i)
+    HO =[item[0] for item in cursor.fetchall()]
+    HD = cursor.execute("SELECT `Home Defense` FROM results where id = %s",i)
+    HD =[item[0] for item in cursor.fetchall()]
+    HP = cursor.execute("SELECT `Home Pitching` FROM results where id = %s",i)
+    HP =[item[0] for item in cursor.fetchall()]
+    HF = cursor.execute("SELECT `Home Forme`   FROM results where id = %s",i)
+    HF =[item[0] for item in cursor.fetchall()]
+    AT = cursor.execute("SELECT `Away Team`    FROM results where id = %s",i)
+    AT =[item[0] for item in cursor.fetchall()]
+    AO = cursor.execute("SELECT `Away Offense` FROM results where id = %s",i)
+    AO =[item[0] for item in cursor.fetchall()]
+    AD = cursor.execute("SELECT `Away Defense` FROM results where id = %s",i)
+    AD =[item[0] for item in cursor.fetchall()]
+    AP = cursor.execute("SELECT `Home Pitching` FROM results where id = %s",i)
+    AP =[item[0] for item in cursor.fetchall()]
+    AF = cursor.execute("SELECT `Away Forme`   FROM results where id = %s",i)
+    AF =[item[0] for item in cursor.fetchall()]
+    
+    
+    #Insert into the database
+    cursor.execute("Insert into ml_algo (id, Home_team,Home_offense,Home_defense,Home_pitcher,Home_Forme,Away_team,Away_offense,Away_defense,Away_pitcher,Away_forme,pred_win) VALUES (%s,%s, %s,%s, %s,%s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE Home_team=%s, Home_offense = %s, Home_defense = %s, Home_pitcher =%s, Home_Forme= %s,Away_team = %s ,Away_offense=%s,Away_defense = %s, Away_pitcher =%s, Away_forme= %s,pred_win= %s",(i,HT[0],HO[0],HD[0],HP[0],HF[0],AT[0],AO[0],AD[0],AP[0],AF[0],Win,HT[0],HO[0],HD[0],HP[0],HF[0],AT[0],AO[0],AD[0],AP[0],AF[0],Win))
+    connection.commit()
+    i+=1
+"""
+# load data
+data = "SELECT * FROM ml_algo"
+cursor.execute(data)
+data = pd.read_sql(data,con=connection)
+data = pd.DataFrame(data)
+data= data.drop(columns=['id','Home_opp','Away_opp'])
+dataset = data.values
+print(dataset)
+#Match à venir
+#Futurmatch = cursor.execute("SELECT count(Win) FROM Match where WIN = null")
+#Futurmatch = pd.read_sql(Futurmatch,con=connection)
+#Futurmatch = [item[0] for item in cursor.fetchall()]
+
+# split data into X and y
+X = dataset[:,0:9]
+X = X.astype(str)
+Y = dataset[:,10]
+print(X)
+print(Y)
+param = {'max_depth': 2, 'eta': 1, 'silent': 1, 'objective': 'binary:logistic'}
+param['nthread'] = 4
+param['eval_metric'] = 'auc'
+
+# encode string input values as integers
+encoded_x = None
+for i in range(0,9):
+	label_encoder = LabelEncoder()
+	feature = label_encoder.fit_transform(X[:,i])
+	feature = feature.reshape(X.shape[0], 1)
+	onehot_encoder = OneHotEncoder(categories = 'auto',sparse=False)
+	feature = onehot_encoder.fit_transform(feature)
+	if encoded_x is None:
+		encoded_x = feature
+	else:
+		encoded_x = numpy.concatenate((encoded_x, feature), axis=1)
+print("X shape: : ", encoded_x.shape)
+print('xtrain' ,encoded_x)
+# encode string class values as integers
+label_encoder = LabelEncoder()
+label_encoder = label_encoder.fit(Y)
+label_encoded_y = label_encoder.transform(Y)
+print('label encoded y',label_encoded_y)
+# split data into train and test sets
+seed = 40
+X_train, X_test, y_train, y_test = train_test_split(encoded_x, label_encoded_y, test_size=0.5, random_state=seed)
+# fit model no training data
+model = XGBClassifier()
+model.fit(X_train, y_train)
+print(model)
+# make predictions for test data
+y_pred = model.predict(X_test)
+predictions = [round(value) for value in y_pred]
+print(predictions)
+# evaluate predictions
+accuracy = accuracy_score(y_test, predictions)
+print("Accuracy: %.2f%%" % (accuracy * 100.0))
+"""plt.pyplot.scatter(y_test, predictions,c ='red')
+plt.pyplot.xlabel('True Values')
+plt.pyplot.ylabel('Predictions')"""
+
+
+fpr_cl = dict()
+tpr_cl = dict()
+
+y_proba = model.predict_proba(X_test)
+
+fpr_cl["Win predict"], tpr_cl["Win predict"], _ = roc_curve(
+    y_test == 1, y_proba[:, 0].ravel())
+
+
+plt.figure()
+for key in fpr_cl:
+    plt.plot(fpr_cl[key], tpr_cl[key], label=key,color = 'green')
+
+lw = 2
+plt.plot([0, 1], [0, 1], color='orange', lw=lw, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel("False positive")
+plt.ylabel("True positive")
+plt.title('ROC(s) with predict_proba')
+plt.legend(loc="lower right")
+
+# Save prediction_df to csv
+pd.DataFrame(y_proba).to_csv('predict sqlWin.csv')
+
+#predictions = [round(value) for value in y_pred]
+#ypred = model.predict_proba(y_test,predictions) 
+# make predictions for test data
+
+# evaluate predictions
+#print(y_test)
+
