@@ -1,0 +1,36 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Mar 25 18:27:24 2019
+
+@author: Guillaume
+"""
+import numpy as np
+
+outcomes, sims, probs = [], 1000, 0.5
+
+for _ in range(sims):
+    #we have 30 units at the beginning
+    money = 30
+    b=1
+    bet = 10
+    for i in range (0,bet):
+        # Simulate elections 
+        win = np.random.binomial(p=probs,n=1)
+        if win >= 0.5 :
+           money += b*10
+           b = 1
+           print(money)
+        else:
+            money -= b*10
+            b += 1
+            print(money)
+        #stop when money = 50
+        if money == 50 :
+            outcomes.append(money)
+            break
+    
+
+# Calculate probability of winning
+prob_win = len(outcomes)/sims
+print("Probability of winning = {}".format(prob_win))
+    
