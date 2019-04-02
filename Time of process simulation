@@ -1,0 +1,123 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Apr  2 01:48:03 2019
+
+@author: Guillaume
+"""
+
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Mar 25 18:27:24 2019
+
+@author: Guillaume
+"""
+import matplotlib.pyplot as plt
+import random
+
+#Time that take a train to arrive
+
+a,b,c,d, sims = [],[],[],[], 150
+
+#Take 150 iterations
+for _ in range(sims):
+    # Simulate time possible 
+    tiempo = random.random()
+    if tiempo < 0.20 :
+       hora = 10
+       a.append(hora)
+    elif tiempo >= 0.2 and tiempo < 0.45:
+       hora = 15
+       b.append(hora)
+    elif tiempo >= 0.45 and tiempo < 0.8:
+       hora = 20
+       c.append(hora)
+    elif tiempo >= 0.8 and tiempo <= 1:
+       hora = 24
+       d.append(hora)
+
+# List of probability
+numero = [round(len(a)/sims,3),round(len(b)/sims,3),round(len(c)/sims,3),round(len(d)/sims,3)]
+print("Probability of having 10 horas  = {} %".format(round((numero[0]*100),3)))
+print("Probability of having 15 horas = {} %".format(round((numero[1]*100),3)))
+print("Probability of having 20 horas = {} %".format(round((numero[2]*100),3)))
+print("Probability of having 24 horas = {} %".format(round((numero[3]*100),3)))
+
+#labels
+labels = '10','15','20','24'
+#proba number
+teoria = [0.2,0.25,0.35,0.2]
+
+#width 
+barWidth = 0.4
+r1 = range(len(numero))
+r2 = [x + barWidth for x in r1]
+
+#graph
+plt.barh(r1, numero, height = barWidth, color = ['blue' for i in numero],
+           edgecolor = ['blue' for i in numero], linewidth = 1,align = 'edge')
+plt.barh(r2, teoria, height = barWidth, color = ['red' for i in numero],
+           edgecolor = ['red' for i in numero], linewidth =1,align = 'edge')
+#axis & title
+plt.yticks(range(len(numero)), labels)
+plt.xlabel('Probabilidad')
+plt.ylabel('Tiempo que tarda')
+plt.title('Nombre aleatorio practica (rojo) contro Teoria (azul)')
+plt.show()
+#sum of hours in this case needed for a train to arrive
+sumahora = ((numero[0]*100) * 20) + ((numero[1]*100) * 15) + ((numero[2]*100) * 20)+ ((numero[3]*100) * 24)
+print("Suma de horas al final de los 150 trenes : ", round(sumahora) ," horas.\n" )
+
+#How many container their is for 150 train 
+a,b,c,d, sims = [],[],[],[], 150
+
+#Take 150 iterations
+for _ in range(sims):
+    # Simulate tiempo 
+    contenador = random.random()
+    if contenador < 0.1 :
+       num = 5
+       a.append(num)
+    elif contenador >= 0.1 and contenador < 0.3:
+       num = 8
+       b.append(num)
+    elif contenador >= 0.3 and contenador < 0.8:
+       num = 12
+       c.append(num)
+    elif contenador >= 0.8 and contenador <= 1:
+       num = 15
+       d.append(num)
+
+# List of probability
+numero = [round(len(a)/sims,3),round(len(b)/sims,3),round(len(c)/sims,3),round(len(d)/sims,3)]
+print("Probability of having 5 contenador  = {} %".format(round((numero[0]*100),3)))
+print("Probability of having 8 contenador = {} %".format(round((numero[1]*100),3)))
+print("Probability of having 12 contenador = {} %".format(round((numero[2]*100),3)))
+print("Probability of having 15 contenador = {} %".format(round((numero[3]*100),3)))
+
+#labels
+labels = '5','8','12','15'
+#proba number
+teoria = [0.1,0.2,0.5,0.2]
+
+#width 
+barWidth = 0.4
+r1 = range(len(numero))
+r2 = [x + barWidth for x in r1]
+
+#graph
+plt.barh(r1, numero, height = barWidth, color = ['blue' for i in numero],
+           edgecolor = ['blue' for i in numero], linewidth = 1,align = 'edge')
+plt.barh(r2, teoria, height = barWidth, color = ['red' for i in numero],
+           edgecolor = ['red' for i in numero], linewidth =1,align = 'edge')
+#axis & title
+plt.yticks(range(len(numero)), labels)
+plt.xlabel('Probabilidad')
+plt.ylabel('Nombre de contenador')
+plt.title('Nombre aleatorio practica (rojo) contro Teoria (azul)')
+plt.show()
+sumacargar = ((numero[0]*100) * 5) + ((numero[1]*100) * 8) + ((numero[2]*100) * 12)+ ((numero[3]*100) * 15)
+#number of container needed
+print("Suma de contenador al final de los 150 trenes : ", round(sumacargar),"  contenador. \n" )
+
+#Number of time needed to charge everything on the boats from train departure to end of charging
+print("Suma de hora final con el tiempo de carga mas el de tardar : ", round(sumahora + sumacargar) ,"horas para cargar", sims ,"tren.\n")
