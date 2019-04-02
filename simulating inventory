@@ -1,0 +1,73 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Mar 25 18:27:24 2019
+
+@author: Guillaume
+"""
+import matplotlib.pyplot as plt
+import random
+
+
+a,b, sims = 0, [], 252
+#Take 252 iterations
+for _ in range(sims):
+    # If their is 25000m² de metal we don't buy more
+    if a > 25000:
+        win = random.random()
+        if win < 0.05 :
+           a -=  6000
+        elif win >= 0.05 and win < 0.2:
+           a -= 7000
+        elif win >= 0.2 and win < 0.4:
+           a -= 8000
+        elif win >= 0.4 and win < 0.7:
+           a -= 9000
+        elif win >= 0.7 and win < 0.9:
+           a -= 10000
+        elif win >= 0.9 and win <= 1:
+           a -= 11000
+        b.append(a)
+    else:
+        provision = random.random()
+        if provision < 0.45:
+            p = 8000
+            win = random.random()
+            if win < 0.05 :
+               a += p - 6000
+            elif win >= 0.05 and win < 0.2:
+               a += p - 7000
+            elif win >= 0.2 and win < 0.4:
+               a += p - 8000
+            elif win >= 0.4 and win < 0.7:
+               a += p - 9000
+            elif win >= 0.7 and win < 0.9:
+               a += p - 10000
+            elif win >= 0.9 and win <= 1:
+               a += p - 11000
+        else:
+            p = 11000
+            win = random.random()
+            if win < 0.05 :
+               a += p - 6000
+            elif win >= 0.05 and win < 0.2:
+               a += p - 7000
+            elif win >= 0.2 and win < 0.4:
+               a += p - 8000
+            elif win >= 0.4 and win < 0.7:
+               a += p - 9000
+            elif win >= 0.7 and win < 0.9:
+               a += p - 10000
+            elif win >= 0.9 and win <= 1:
+               a += p - 11000
+        b.append(a)
+
+
+plt.plot(b)
+
+#axis & title
+plt.xlabel('Cambio cada semana')
+plt.ylabel('Nombre de acero')
+plt.title('Nombre de acero segun la semana')
+plt.show()
+
+print("Suma de acero inoxidable al fin de los 252 semanas : ", a," m²." )
