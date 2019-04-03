@@ -10,77 +10,36 @@ import numpy as np
 #create 2 random list
 A = [round(np.random.random(),2) for i in range(5) ]
 B = [round(np.random.random(),2) for i in range(5) ]
-
+#print list
 print("A",A)
 print("B",B,"\n")
-AUB = []
-for i in range(5):
-    if A[i]>B[i]:
-        AUB.append(A[i])
-    else:
-        AUB.append(B[i])
-        
+# max(A or B )
+AUB = [A[i]  if A[i]>B[i] else B[i] for i in range(5)]
 print("AUB",AUB)   
-
-AB = []
-for i in range(5):
-    if A[i]>B[i]:
-        AB.append(B[i])
-    else:
-        AB.append(A[i])
+#min(A & B)
+AB = [B[i]  if A[i]>B[i] else A[i] for i in range(5)]
 print("A&b",AB,"\n")
-
+# opposite of A
 contrarioA = [round(1-A[i],3)for i in range(5)]
 print("Contrario de A  : " ,contrarioA)
-
+# opposite of B
 contrarioB = [round(1-B[i],3)for i in range(5)]
 print("contrario de B : ", contrarioB,"\n")
-
-AUcontrarioB = []
-for i in range(5):
-    if A[i]>contrarioB[i]:
-        AUcontrarioB.append(A[i])
-    else:
-        AUcontrarioB.append(contrarioB[i])
+# max( B or opposite of A)
+AUcontrarioB = [A[i] if A[i]>contrarioB[i] else contrarioB[i] for i in range(5)]
 print("A U contrarioB :",AUcontrarioB)
-
-BUcontrarioA = []
-for i in range(5):
-    if A[i]>contrarioA[i]:
-        BUcontrarioA.append(contrarioA[i])
-    else:
-        BUcontrarioA.append(B[i])
+#max (A or opposite of B)
+BUcontrarioA = [contrarioA[i] if A[i]>contrarioA[i] else B[i] for i in range(5)]
 print("B U contrarioA :",BUcontrarioA,"\n")
-
-AycontrarioB = []
-for i in range(5):
-    if A[i]>contrarioB[i]:
-        AycontrarioB.append(contrarioB[i])
-    else:
-        AycontrarioB.append(A[i])
+#max (A & opposite of B)
+AycontrarioB = [contrarioB[i] if A[i]>contrarioB[i] else A[i] for i in range(5)]
 print("A & contrarioB :",AycontrarioB)
-
-BycontrarioA = []
-for i in range(5):
-    if B[i]>contrarioA[i]:
-        BycontrarioA.append(contrarioA[i])
-    else:
-        BycontrarioA.append(B[i])
+#max (B & opposite of A)
+BycontrarioA = [contrarioA[i] if B[i]>contrarioA[i] else B[i] for i in range(5)]
 print("B & contrarioA :",BycontrarioA,"\n")
-
-contrarioAUcontrarioB  = []
-for i in range(5):
-    if contrarioA[i]>contrarioB[i]:
-        contrarioAUcontrarioB.append(contrarioA[i])
-    else:
-        contrarioAUcontrarioB.append(contrarioB[i])
-        
+#min (opposite of A & opposite of B)
+contrarioAUcontrarioB  = [contrarioA[i] if contrarioA[i]>contrarioB[i] else contrarioB[i] for i in range(5)]        
 print("contrarioA U contrarioB",contrarioAUcontrarioB)  
-
-AB = []
-for i in range(5):
-    if contrarioA[i]>contrarioB[i]:
-        AB.append(contrarioB[i])
-    else:
-        AB.append(contrarioA[i])
+#max (opposite of A & opposite of B)
+AB = [contrarioB[i] if contrarioA[i]>contrarioB[i] else contrarioA[i] for i in range(5)]
 print("contrarioA & contrarioB",AB,"\n")
