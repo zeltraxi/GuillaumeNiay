@@ -1,0 +1,86 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr  3 04:04:25 2019
+
+@author: Guillaume
+"""
+
+import numpy as np
+
+#create 2 random list
+A = [round(np.random.random(),2) for i in range(5) ]
+B = [round(np.random.random(),2) for i in range(5) ]
+
+print("A",A)
+print("B",B,"\n")
+AUB = []
+for i in range(5):
+    if A[i]>B[i]:
+        AUB.append(A[i])
+    else:
+        AUB.append(B[i])
+        
+print("AUB",AUB)   
+
+AB = []
+for i in range(5):
+    if A[i]>B[i]:
+        AB.append(B[i])
+    else:
+        AB.append(A[i])
+print("A&b",AB,"\n")
+
+contrarioA = [round(1-A[i],3)for i in range(5)]
+print("Contrario de A  : " ,contrarioA)
+
+contrarioB = [round(1-B[i],3)for i in range(5)]
+print("contrario de B : ", contrarioB,"\n")
+
+AUcontrarioB = []
+for i in range(5):
+    if A[i]>contrarioB[i]:
+        AUcontrarioB.append(A[i])
+    else:
+        AUcontrarioB.append(contrarioB[i])
+print("A U contrarioB :",AUcontrarioB)
+
+BUcontrarioA = []
+for i in range(5):
+    if A[i]>contrarioA[i]:
+        BUcontrarioA.append(contrarioA[i])
+    else:
+        BUcontrarioA.append(B[i])
+print("B U contrarioA :",BUcontrarioA,"\n")
+
+AycontrarioB = []
+for i in range(5):
+    if A[i]>contrarioB[i]:
+        AycontrarioB.append(contrarioB[i])
+    else:
+        AycontrarioB.append(A[i])
+print("A & contrarioB :",AycontrarioB)
+
+BycontrarioA = []
+for i in range(5):
+    if B[i]>contrarioA[i]:
+        BycontrarioA.append(contrarioA[i])
+    else:
+        BycontrarioA.append(B[i])
+print("B & contrarioA :",BycontrarioA,"\n")
+
+contrarioAUcontrarioB  = []
+for i in range(5):
+    if contrarioA[i]>contrarioB[i]:
+        contrarioAUcontrarioB.append(contrarioA[i])
+    else:
+        contrarioAUcontrarioB.append(contrarioB[i])
+        
+print("contrarioA U contrarioB",contrarioAUcontrarioB)  
+
+AB = []
+for i in range(5):
+    if contrarioA[i]>contrarioB[i]:
+        AB.append(contrarioB[i])
+    else:
+        AB.append(contrarioA[i])
+print("contrarioA & contrarioB",AB,"\n")
