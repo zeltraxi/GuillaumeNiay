@@ -1,0 +1,103 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Apr  4 04:16:39 2019
+
+@author: Guillaume
+"""
+
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr  3 19:24:22 2019
+
+@author: Guillaume
+"""
+
+import pandas as pd
+import xgboost as xgb
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, mean_squared_error
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve , auc
+import numpy as np
+from xgboost import plot_importance
+
+data = pd.read_csv(r"C:\Users\Guillaume\Documents\Hacker\bank\bank-additional-full.csv",sep=";",header=0)
+#Input string
+#Xstr = data.iloc[:,[1,2,3,5,6,7,8,9,14]]
+Xstr1 = data.iloc[:,7]
+Xstr1 = pd.get_dummies(Xstr1, prefix = 'contact')
+#Xstr2 = data.iloc[:,8]
+#Xstr2 = pd.get_dummies(Xstr2, prefix = 'month')
+#Xstr3 = data.iloc[:,9]
+#Xstr3 = pd.get_dummies(Xstr3, prefix = 'day')
+Xstr4 = data.iloc[:,14]
+Xstr4 = pd.get_dummies(Xstr4, prefix = 'outcome')
+
+
+
+#Xstr = Xstr1.join(Xstr2)
+#Xstr = Xstr.join(Xstr3)
+Xstr = Xstr1.join(Xstr4)
+#input Int
+Xint = data.iloc[:,[11,12,13,15,16,17,18,19]]
+Xint = Xint.astype(int)
+#Output
+Y = data.iloc[:,20]
+#All input
+X = data.iloc[:,7:19]
+
+        
+encoded_x = Xstr.join(Xint)
+print("X shape: : ", encoded_x.shape)
+print('xtrain' ,encoded_x)
+print(encoded_x.columns)
+# encode string class values as integers
+label_encoder = LabelEncoder()
+label_encoder = label_encoder.fit(Y)
+label_encoded_y = label_encoder.transform(Y)
+print('label encoded y',label_encoded_y)
+
+#initialize parameters
+data_dmatrix = xgb.DMatrix(data=encoded_x,label=label_encoded_y)
+# split data into train and test sets
+seed = 40
+X_train, X_test, y_train, y_test = train_test_split(encoded_x, label_encoded_y, test_size=0.3, random_state=seed)
+
+# fit model no training data
+model = xgb.XGBClassifier(objective ='binary:logistic', colsample_bytree = 0.3, learning_rate = 0.1,
+                max_depth = 5, alpha = 10, n_estimators = 10)
+model.fit(X_train, y_train)
+# plot faeature importance
+xgb.plot_importance(model)
+plt.show()
+# make predictions for test data
+y_pred = model.predict(X_test)
+predictions = [round(value) for value in y_pred]
+print(predictions)
+# evaluate predictions
+accuracy = accuracy_score(y_test, predictions)
+print("Accuracy: %.2f%%" % (accuracy * 100.0))
+
+rmse = np.sqrt(mean_squared_error(y_test, predictions))
+print("RMSE: %f" % (rmse))
+
+params = {"objective":"binary:logistic",'colsample_bytree': 0.3,'learning_rate': 0.8,
+                'max_depth': 5, 'alpha': 10} 
+
+cv_results = xgb.cv(dtrain=data_dmatrix, params=params, nfold=3,
+                    num_boost_round=50,early_stopping_rounds=10,metrics="rmse", as_pandas=True, seed=123)
+
+
+xg_reg = xgb.train(params=params, dtrain=data_dmatrix, num_boost_round=10)
+xgb.plot_tree(xg_reg,num_trees=4, rankdir='UT')
+fig = plt.gcf()
+fig.set_size_inches(30, 20)
+fig.savefig('tree.png')
+
+xgb.plot_importance(xg_reg)
+plt.rcParams['figure.figsize'] = [10, 5]
+plt.show()
+
+
