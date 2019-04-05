@@ -1,0 +1,133 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr  3 04:04:25 2019
+
+@author: Guillaume
+"""
+
+import numpy as np
+g = []
+#function A ganancia
+def a(listing):
+    for i in range(len(ganancia)):
+        if listing[i] == 0:
+            gano = 0
+        elif listing[i] == 0.5:
+            gano = 20
+        elif  listing[i] == 0.65:
+            gano = 40
+        elif  listing[i] == 0.85:
+            gano = 60
+        elif listing[i] == 1:
+            gano = 100
+        g.append(gano)
+    return print("Ganancia : ",g,"\n")
+
+#function B ganancia
+def b(listing):
+    for i in range(len(ganancia)):
+        if listing[i] == 0:
+            gano = 0
+        elif listing[i] == 0.35:
+            gano = 20
+        elif listing[i] == 0.5:
+            gano = 40
+        elif listing[i] ==0.75:
+            gano = 60
+        elif listing[i] == 0.9:
+            gano = 80
+        elif listing[i] == 1:
+            gano = 100
+        g.append(gano)
+    return print("Ganancia : ",g,"\n")           
+#function Union ganancia
+def union(listing):
+    for i in range(len(ganancia)):
+        if listing[i] == 0:
+            gano = 0
+        elif listing[i] == 0.35:
+            gano = 20
+        elif listing[i] == 0.5 or listing[i] == 0.65:
+            gano = 40
+        elif listing[i] ==0.75 or listing[i] == 0.85:
+            gano = 60
+        elif listing[i] == 0.9:
+            gano = 80
+        elif listing[i] == 1:
+            gano = 100
+        g.append(gano)            
+    return print("Ganancia : ",g,"\n")
+
+#function Intersecion ganancia
+def intersection(listing):
+    for i in range(len(ganancia)):
+        if listing[i] == 0:
+            gano = 0
+        elif listing[i] == 0.35 or listing[i] == 0.5:
+            gano = 20
+        elif listing[i] == 0.65:
+            gano = 40
+        elif listing[i] ==0.75 or listing[i] == 0.85:
+            gano = 60
+        elif listing[i] == 0.9 or listing[i] == 1:
+            gano = 80
+        g.append(gano)            
+    return print("Ganancia : ",g,"\n")
+
+
+#create 2 random list
+A = [0,0.5,.65,0.85,1,1]
+B = [0,0.35,.5,0.75,0.9,1]
+ganancia = [0,20,40,60,80,100]
+#print list
+print("A",A)
+print("B",B,"\n")
+# max(A or B )
+AUB = [A[i]  if A[i]>B[i] else B[i] for i in range(len(ganancia))]
+print("AUB",AUB)   
+union(AUB)
+#min(A & B)
+g= []
+AB = [B[i]  if A[i]>B[i] else A[i] for i in range(len(ganancia))]
+print("A&b",AB)
+intersection(AB)
+# opposite of A
+g= []
+contrarioA = [round(1-A[i],3)for i in range(len(ganancia))]
+print("Contrario de A  : " ,contrarioA)
+a(A)
+# opposite of B
+g= []
+contrarioB = [round(1-B[i],3)for i in range(len(ganancia))]
+print("contrario de B : ", contrarioB)
+b(B)
+# max( B or opposite of A)
+g= []
+AUcontrarioB = [A[i] if A[i]>contrarioB[i] else contrarioB[i] for i in range(len(ganancia))]
+print("A U contrarioB :",AUcontrarioB)
+union(AUcontrarioB)
+#max (A or opposite of B)
+g= []
+BUcontrarioA = [contrarioA[i] if A[i]>contrarioA[i] else B[i] for i in range(len(ganancia))]
+print("B U contrarioA :",BUcontrarioA)
+union(BUcontrarioA)
+#max (A & opposite of B)
+g= []
+AycontrarioB = [contrarioB[i] if A[i]>contrarioB[i] else A[i] for i in range(len(ganancia))]
+print("A & contrarioB :",AycontrarioB)
+intersection(AycontrarioB)
+#max (B & opposite of A)
+g= []
+BycontrarioA = [contrarioA[i] if B[i]>contrarioA[i] else B[i] for i in range(len(ganancia))]
+print("B & contrarioA :",BycontrarioA)
+intersection(BycontrarioA)
+#min (opposite of A & opposite of B)
+g= []
+contrarioAUcontrarioB  = [contrarioA[i] if contrarioA[i]>contrarioB[i] else contrarioB[i] for i in range(len(ganancia))]        
+print("contrarioA U contrarioB",contrarioAUcontrarioB) 
+union(contrarioAUcontrarioB)
+#max (opposite of A & opposite of B)
+g= []
+AB = [contrarioB[i] if contrarioA[i]>contrarioB[i] else contrarioA[i] for i in range(len(ganancia))]
+print("contrarioA & contrarioB",AB)
+intersection(AB)
