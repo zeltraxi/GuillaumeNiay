@@ -1,0 +1,40 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Apr  3 04:04:25 2019
+
+@author: Guillaume
+"""
+
+
+#list
+sinceridad = [0.75,0.85,0.3,0.6]
+fidel = [0.6,0.1,0.2,0.8]
+respeto = [0.9,0.5,0.4,0.5]
+
+#normalization (normal)
+for i in range(len(sinceridad)):
+    sinceridad[i] *= max(sinceridad)
+sinceridad = [ round(elem, 2) for elem in sinceridad ]
+print(sinceridad)
+
+#(y mas)
+for i in range(len(respeto)):
+    respeto[i]  = respeto[i]**2
+respeto = [ round(elem, 2) for elem in respeto ]
+print(respeto)
+print(fidel,"\n")
+
+#Conjunto de todo (intersecion (y))
+for i in range(len(fidel)):
+    if sinceridad[i] < fidel[i]:
+        if sinceridad[i] > respeto[i]:
+            print("El",i,"de la lista tiene el numero : ",respeto[i])
+        else:
+            print("El",i,"de la lista tiene el numero : ",sinceridad[i])
+    elif respeto[i] < fidel[i]:
+        if respeto[i] < sinceridad[i]:
+            print("El",i,"de la lista tiene el numero : ",respeto[i])
+        else:
+            print("El",i,"de la lista tiene el numero : ",sinceridad[i])
+    else:
+        print("El",i,"de la lista tiene el numero : ",fidel[i])
