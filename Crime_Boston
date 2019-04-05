@@ -1,0 +1,27 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Mar 29 03:32:15 2019
+
+@author: Guillaume
+"""
+
+
+import folium
+import pandas as pd
+from folium.plugins import MarkerCluster
+
+crime = pd.read_csv(r"C:\Users\Guillaume\Documents\Hacker\boston_crimes\crime.csv",error_bad_lines=False,encoding = 'unicode_escape',sep=';')
+crime = crime.dropna()
+
+SF_COORDINATES = (42.31, -71.01)
+# create empty map zoomed in on San Francisco
+map = folium.Map(location=SF_COORDINATES, zoom_start=12)
+marker_cluster = MarkerCluster().add_to(map)
+#adding marker and popup of city and crime-name
+for i in range(1,len(crime.STREET)):
+    folium.Marker([float(crime.lon.iloc[i])  ,float(crime.lat.iloc[i])],popup="city name ="+crime.STREET.iloc[i]+"\n").add_to(marker_cluster)
+
+#we can change tiles with help of LayerConrol
+folium.LayerControl().add_to(map)
+map.save('osm.html')
+
