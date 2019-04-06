@@ -1,0 +1,41 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Apr  5 18:44:43 2019
+
+@author: Guillaume
+"""
+
+import folium
+import pandas as pd
+from folium.plugins import MarkerCluster
+import matplotlib.pyplot as plt
+import numpy as np
+import calendar
+
+accident = pd.read_csv(r"C:\Users\Guillaume\Documents\Hacker\accidents-in-france-from-2005-to-2016\caracteristics.csv",error_bad_lines=False,encoding = 'unicode_escape',sep=';')
+accident = accident.dropna()
+
+
+# number of accident per month
+number = accident["mois"].value_counts()
+number = number.sort_index()
+number.plot(kind='bar') 
+plt.xticks(np.arange(13), calendar.month_name[1:13])
+plt.title("Number of violation per month")
+plt.show()
+
+#number of crime per year
+number = accident["year"].value_counts()
+number = number.sort_index()
+number.plot(kind='barh') 
+plt.title("Accident par an en france")
+plt.show()
+
+#Date
+accident['date']= pd.to_datetime(accident['date'])
+#get value of crime per day
+number = accident["date"].value_counts()
+number.index = pd.to_datetime(number.index)
+number = number.sort_index()
+number.plot()
+plt.show()
