@@ -15,14 +15,14 @@ respeto = [0.9,0.5,0.4,0.5]
 for i in range(len(sinceridad)):
     sinceridad[i] *= max(sinceridad)
 sinceridad = [ round(elem, 2) for elem in sinceridad ]
-print(sinceridad)
+print("Sinceridad :",sinceridad)
 
 #(y mas)
 for i in range(len(respeto)):
     respeto[i]  = respeto[i]**2
 respeto = [ round(elem, 2) for elem in respeto ]
-print(respeto)
-print(fidel,"\n")
+print("Respeto :",respeto)
+print("Fidelidad :",fidel,"\n")
 
 #list
 classement = []
@@ -47,4 +47,3 @@ for i in range(len(fidel)):
         classement.append(fidel[i])
 
 print("Mejor personas ",classement.index(max(classement)),":", max(classement))
-
