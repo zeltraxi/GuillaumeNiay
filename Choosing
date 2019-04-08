@@ -24,17 +24,27 @@ respeto = [ round(elem, 2) for elem in respeto ]
 print(respeto)
 print(fidel,"\n")
 
+#list
+classement = []
 #Conjunto de todo (intersecion (y))
 for i in range(len(fidel)):
     if sinceridad[i] < fidel[i]:
         if sinceridad[i] > respeto[i]:
             print("El",i,"de la lista tiene el numero : ",respeto[i])
+            classement.append(respeto[i])
         else:
             print("El",i,"de la lista tiene el numero : ",sinceridad[i])
+            classement.append(sinceridad[i])
     elif respeto[i] < fidel[i]:
         if respeto[i] < sinceridad[i]:
             print("El",i,"de la lista tiene el numero : ",respeto[i])
+            classement.append(respeto[i])
         else:
             print("El",i,"de la lista tiene el numero : ",sinceridad[i])
+            classement.append(sinceridad[i])
     else:
         print("El",i,"de la lista tiene el numero : ",fidel[i])
+        classement.append(fidel[i])
+
+print("Mejor personas ",classement.index(max(classement)),":", max(classement))
+
