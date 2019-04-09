@@ -1,0 +1,188 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Apr  9 00:26:19 2019
+
+@author: Guillaume
+"""
+
+import random
+from prettytable import PrettyTable
+
+#input number of simulation you want to do
+sims = int(input("Cuanto simulacion quieres hacer : "))
+#list of month
+mes = [x for x in range(1,13)]
+#list of costs
+cdo,cdli,cdf,ct=[],[],[],[]
+
+q = 200
+R = 100
+print("Cantidad de ordena : Q ", q)
+print("Nivel de reorden : R ", R)
+    
+for i in range (0,sims):
+    #initialize list
+    b,evol,ini,num,faltante,addt,orden = [],[],[],[],[],[],[]
+    #retraso de 1 mes 0.3 2 meses 0.4 3 meses 0.3
+    #stock it by month according to the demand
+    #initialize stock
+    stock = 150
+    t=0
+    ordeno = 0
+    for _ in range(1,13):
+        addt.sort()
+        if addt != []:
+            if _ == addt[0]:
+                stock +=q
+                addt.remove(_)
+        #if stock under 100 then order new auto
+        if stock < R and addt == []:
+            ordeno= ordeno + 1
+            orden.append(ordeno)
+            late = random.random()
+            if late < 0.3:
+                t= _ + 1
+                addt.append(t) 
+            elif late >= 0.3 and late < 0.7:
+                t= _ + 2
+                addt.append(t) 
+            else:
+                t = _+ 3
+                addt.append(t)
+        else:
+            orden.append(0)
+        #demands depanding on month
+        if _ == 1 or _ == 10:
+            mul = 1.2
+        elif _ == 3 or _ == 8:
+            mul = 0.9
+        elif _ == 4 or _ == 5 or _ == 7:
+            mul = 0.8
+        elif _ == 6:
+            mul = 0.7
+        elif _ == 10:
+            mul = 1.2
+        elif _ == 11:
+            mul = 1.3
+        elif _ == 12:
+            mul = 1.4
+        else:
+            mul = 1
+        # Simulate demanda mensual 
+        win = random.random()
+        ini.append(round(stock))
+        num.append(round(win,3))
+        #set probability
+        if win < 0.01 :
+           a = 35 * mul
+           b.append(a)
+        elif win >= 0.01 and win < 0.025:
+           a = 36 * mul
+           b.append(a)
+        elif win >= 0.025 and win < 0.045:
+           a = 37 * mul
+           b.append(a)
+        elif win >= 0.045 and win < 0.065:
+           a = 38 * mul
+           b.append(a)
+        elif win >= 0.065 and win <= 0.087:
+           a = 39 * mul
+           b.append(a)
+        elif win >= 0.087 and win < 0.11:
+           a = 40 * mul
+           b.append(a)
+        elif win >= 0.11 and win < 0.135:
+           a = 41 * mul
+           b.append(a)
+        elif win >= 0.135 and win < 0.162:
+           a = 42 * mul
+           b.append(a)
+        elif win >= 0.162 and win <= 0.19:
+           a = 43 * mul
+           b.append(a)
+        elif win >= 0.019 and win < 0.219:
+           a = 44 * mul
+           b.append(a)
+        elif win >= 0.219 and win < 0.254:
+           a = 45 * mul
+           b.append(a)
+        elif win >= 0.254 and win < 0.299:
+           a = 46
+           b.append(a)
+        elif win >= 0.299 and win < 0.359:
+           a = 47 * mul
+           b.append(a)
+        elif win >= 0.359 and win < 0.424:
+           a = 48 * mul
+           b.append(a)
+        elif win >= 0.424 and win < 0.494:
+           a = 49 * mul
+           b.append(a)
+        elif win >= 0.494 and win < 0.574:
+           a = 50 * mul
+           b.append(a)
+        elif win >= 0.574 and win < 0.649:
+           a = 51 * mul
+           b.append(a)
+        elif win >= 0.649 and win < 0.719:
+           a = 52 * mul
+           b.append(a)
+        elif win >= 0.719 and win < 0.784:
+           a = 53 * mul
+           b.append(a)
+        elif win >= 0.784 and win < 0.844:
+           a = 54 * mul
+           b.append(a)
+        elif win >= 0.844 and win < 0.894:
+           a = 55 * mul
+           b.append(a)
+        elif win >= 0.894 and win < 0.934:
+           a = 56 * mul
+           b.append(a)
+        elif win >= 0.934 and win < 0.964:
+           a = 57 * mul
+           b.append(a)
+        elif win >= 0.964 and win < 0.98:
+           a = 58 * mul
+           b.append(a)
+        elif win >= 0.98 and win <= 0.995:
+           a = 59 * mul
+           b.append(a)
+        else:
+            a = 60 * mul      
+            b.append(a)
+        stock = stock - a
+        if stock < 0:
+            evol.append(0)
+            faltante.append(round(abs(stock)))
+            stock += q
+            del addt[0]
+        else:
+            faltante.append(0)
+            evol.append(stock)
+    #Demands according to the month
+    b = [round(x) for x in b]
+    #stock evolution per month
+    evol = [round(x) for x in evol]
+    #mean of the mensual stock
+    promedio = [((ini[x] - evol[x])/2)+evol[x] if evol[x] > 0  else ((ini[x]/2)*(ini[x]/b[x])) for x in range(12)]
+    promedio = [round(x) for x in promedio]
+    
+    #table of simulation
+    print("\nSimulation number",i+1)
+    table = PrettyTable(['Mes', 'Inventario inicial', 'Numero aleatorio', 'Demanda ajustada', 'Inventorio final','Faltante','orden','Inventorio mensual promedio'])
+    for x in range(0,12):
+        table.add_row([mes[x],ini[x],num[x],b[x],evol[x],faltante[x],orden[x],promedio[x]])
+    cdo.append(max(orden)*100)
+    cdli.append(round(sum(promedio)*1.67))
+    cdf.append(round(sum(faltante)*50))
+    totalcost = round(cdo[i]+cdli[i]+cdf[i])
+    totalcost = str(totalcost) + ' $'
+    ct.append(totalcost)
+    print(table)
+
+#print table cost according to simulations results
+cost = PrettyTable(['Simulation','Costo de ordenar',' Costo de llevar inventario','Costo de faltante','Costo Total'])
+for x in range(0,sims):
+    cost.add_row([x+1,cdo[x],cdli[x],cdf[x],ct[x]])
+print(cost)
