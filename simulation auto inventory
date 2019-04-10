@@ -7,6 +7,7 @@ Created on Tue Apr  9 00:26:19 2019
 
 import random
 from prettytable import PrettyTable
+import pandas as pd
 
 #input number of simulation you want to do
 sims = int(input("Cuanto simulacion quieres hacer : "))
@@ -14,6 +15,7 @@ sims = int(input("Cuanto simulacion quieres hacer : "))
 mes = [x for x in range(1,13)]
 #list of costs
 cdo,cdli,cdf,ct=[],[],[],[]
+df=None
 
 q = 200
 R = 100
@@ -180,9 +182,23 @@ for i in range (0,sims):
     totalcost = str(totalcost) + ' $'
     ct.append(totalcost)
     print(table)
-
-#print table cost according to simulations results
+    
+    if df is not None:
+        newsim = pd.DataFrame({'Mes': ' ' , 'Inventario inicial': ' ', 'Numero aleatorio': ' ', 'Demanda ajustada': ' ' , 'Inventorio final': ' ','Faltante': ' ' ,'orden': ' ','Inventorio mensual promedio':' ' },index=[0])
+        df = df.append(newsim)
+        newsim = pd.DataFrame({'Mes':mes, 'Inventario inicial':ini, 'Numero aleatorio':num, 'Demanda ajustada':b, 'Inventorio final':evol,'Faltante':faltante,'orden':orden,'Inventorio mensual promedio':promedio})
+        df = df.append(newsim)
+    else:
+        df = pd.DataFrame({'Mes':mes, 'Inventario inicial':ini, 'Numero aleatorio':num, 'Demanda ajustada':b, 'Inventorio final':evol,'Faltante':faltante,'orden':orden,'Inventorio mensual promedio':promedio})
+#print table cost according to simulations resultscolors
 cost = PrettyTable(['Simulation','Costo de ordenar',' Costo de llevar inventario','Costo de faltante','Costo Total'])
 for x in range(0,sims):
     cost.add_row([x+1,cdo[x],cdli[x],cdf[x],ct[x]])
 print(cost)
+
+#dataframe
+dataframe = pd.DataFrame({'Simulation':range(1,x+2),'Costo de ordenar':cdo,' Costo de llevar inventario' :cdli,'Costo de faltante':cdf,'Costo Total':ct})
+#print data into Excel file
+with pd.ExcelWriter(r"C:\Users\Guillaume\Documents\esaip\IR4\Mexico\simulacion\autocost.xlsx") as writer:  # doctest: +SKIP
+    dataframe.to_excel(writer, sheet_name='Cout',index=False)
+    df.to_excel(writer, sheet_name='Simulation',index=False)
