@@ -1,0 +1,73 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed May  1 02:39:26 2019
+
+@author: Guillaume
+"""
+
+Estatura = [167, 169, 175, 179, 183, 186, 187, 190, 200]
+a = 170
+b = 185
+
+Encestadores = [12, 6, 15, 12, 16, 13, 12, 10, 13]
+c= 10
+d=14
+
+mEstatura = []
+
+for i in range(len(Estatura)):
+    if Estatura[i] <= 170:
+        mEstatura.append(0)
+    elif Estatura[i] > 170 and Estatura[i] <= 185:
+        mEstatura.append((Estatura[i] - a)/(b-a))
+    else:
+        mEstatura.append(1)
+
+mEncestadores = []      
+for i in range(len(Encestadores)):
+    if Encestadores[i] <= 10:
+        mEncestadores.append(0)
+    elif Encestadores[i] > 10 and Encestadores[i] <= 14:
+        mEncestadores.append((Encestadores[i] - c)/(d-c))
+    else:
+        mEncestadores.append(1)
+  
+result = []      
+for i in range(len(Estatura)):
+    if mEstatura[i] < mEncestadores[i]:
+        result.append(mEstatura[i])
+    else:
+        result.append(mEncestadores[i])
+        
+result = [ round(elem, 2) for elem in result ]
+print("Altos y Bueno encestadores",result)
+
+mEstatura = []
+
+for i in range(len(Estatura)):
+    if Estatura[i] <= 170:
+        mEstatura.append(1)
+    elif Estatura[i] > 170 and Estatura[i] <= 185:
+        mEstatura.append(1-(((Estatura[i] - a)/(b-a))**2))
+    else:
+        mEstatura.append(0)
+   
+mEncestadores = []      
+for i in range(len(Encestadores)):
+    if Encestadores[i] <= 10:
+        mEncestadores.append(0)
+    elif Encestadores[i] > 10 and Encestadores[i] <= 14:
+        mEncestadores.append(((Encestadores[i] - c) / (d-c))**2)
+    else:
+        mEncestadores.append(1)
+    
+result = []      
+for i in range(len(Estatura)):
+    if mEstatura[i] < mEncestadores[i]:
+        result.append(mEstatura[i])
+    else:
+        result.append(mEncestadores[i])
+        
+result = [ round(elem, 2) for elem in result ]
+print("No muy Altos y muy Bueno encestadores",result)
+
