@@ -1,0 +1,84 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue May  7 00:36:33 2019
+
+@author: Guillaume
+"""
+
+import matplotlib.pyplot as plt 
+import random
+from scipy.stats import linregress,mstats
+import statistics
+#import sympy
+
+lista = []
+pesa = []
+#choose a random number between 190 and 230 using the function
+rang = 1000
+for i in range(rang):
+    peso = random.randint(190,231)
+    pesa.append(peso)
+    #function
+    if peso <= 210:
+        func = (1/400)*(peso-190)
+    else:
+        func =  -(1/400)*(peso-230)
+    lista.append(func)
+
+exceso = []
+result = []
+#Calcul the weight of 5 bath
+for i in range(0,rang,5):
+        tonelas = sum(pesa[i:i+5])
+        if tonelas > 1000:
+            exceso.append(tonelas)
+            result.append(tonelas)
+        else:
+            result.append(tonelas)
+            
+#quartile
+if len(result)%4 != 0 :
+  z = int(len(result)/4)
+  #le nombre de données est impair, le 1er quartile est le zieme terme car la liste commence à zéro
+  q1= round(result[z],3)
+else:
+  z = int(len(result)/4)
+  #le nombre de données est impair, le 1er quartile est le z-1 ieme terme
+  q1 = round(result[z-1],3)
+if 3*len(result)%44!= 0 :
+  z = int(3*len(result)/4)
+  #le nombre de données est impair, le 3eme quartile est le zieme terme car la liste commence à zéro
+  q3= round(result[z],3)
+else:
+  z = int(len(result)/4)
+  #le nombre de données est pair, le 3eme quartile est le z-1 ieme terme
+  q3 = round(result[z-1],3)
+
+#list of quartile for plotting  
+q1 = [q1]*int(rang/5)
+q3 = [q3]*int(rang/5)
+#mean
+mean = [sum(result)/len(result)]*int(rang/5)
+
+# Plot 
+plt.plot((range(int(rang/5))), result,label="simulation")
+plt.plot((range(int(rang/5))), q1,label="First quantile")
+plt.plot((range(int(rang/5))), mean,label="Average")
+plt.plot((range(int(rang/5))), q3,label="Third Quartile")
+plt.legend()
+plt.show()
+probl = len(exceso)/(len(lista)/5)
+probl = round(probl,3)
+print("Probability of getting higher value of 1 tons for 5 bath over",int(rang/5),"simulation is : ", probl*100,"%")
+#Q1
+print("First Quantile :",q1[0])
+#mean
+moy = sum(result)/len(result)
+print("Average :",moy)
+print("Third Quantile :",q3[0])
+#std
+print("Standard Deviation :",round(statistics.stdev(result),3))  
+
+
+
+
