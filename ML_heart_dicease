@@ -1,0 +1,129 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed May  8 02:18:40 2019
+
+@author: Guillaume
+"""
+
+import pandas as pd
+import xgboost as xgb
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score,classification_report,roc_auc_score
+from xgboost import plot_tree
+import matplotlib.pyplot as plt
+
+
+file = pd.read_csv(r"C:\Users\Guillaume\Documents\esaip\IR4\Mexico\Inteligencia_computacional\heart-disease-uci\heart.csv",sep=";")
+
+#define inputs & outputs
+X = file.iloc[:,0:12]
+Y= file.iloc[:,13]
+
+#data_dmatrix = xgb.DMatrix(data=X,label=Y)
+
+X_train,X_test,y_train,y_test= train_test_split(X,Y,test_size=0.8,random_state=42)
+
+model = xgb.XGBClassifier()
+modelopt = xgb.XGBClassifier(max_depth=3,learning_rate=0.6,gamma = 0.01,eval_metric="auc",objective="binary:logistic" ,min_child_weight =1, colsample_bytree = 0.7,subsample=0.9)
+
+#train both model
+train_model = model.fit(X_train, y_train)    
+train_modelopt = modelopt.fit(X_train, y_train) 
+#prediction
+pred = train_model.predict(X_test)
+predopt = train_modelopt.predict(X_test)
+# print('Model XGboost Report %r' % (classification_report(y_test, pred)))
+#accuracy
+print("\n Accuracy for the model  : %.2f" % (accuracy_score(y_test, pred) * 100))
+print("\n Accuracy for the model optimized  : %.2f" % (accuracy_score(y_test, predopt) * 100))
+#auc 
+print("\n AUC Score (Train): %f" % (roc_auc_score(y_test, pred)*100))
+print("\n AUC Score (opt): %f" % (roc_auc_score(y_test, predopt)*100))
+
+
+#plot feature importance
+#tree
+plot_tree(train_model)
+plt.show()
+#graph
+xgb.plot_importance(train_model)
+plt.show()
+#tree opt
+plot_tree(train_modelopt)
+plt.show()
+#graph opt
+xgb.plot_importance(train_modelopt)
+plt.show()
+
+#know what params are the best
+"""
+for i in range(1,10):
+    model = xgb.XGBClassifier(max_depth=3,learning_rate=i*0.1)
+    train_model = model.fit(X_train, y_train)
+    
+    #prediction
+    pred = train_model.predict(X_test)
+   # print('Model XGboost Report %r' % (classification_report(y_test, pred)))
+    
+    #accuracy
+    print("\n Accuracy for the model : %.2f" % (accuracy_score(y_test, pred) * 100))
+
+for i in range(1,10):
+    model = xgb.XGBClassifier(max_depth=3,colsample_bytree=i*0.1,learning_rate=0.6,gamma=0.01)
+    train_model = model.fit(X_train, y_train)
+    
+    #prediction
+    pred = train_model.predict(X_test)
+   # print('Model XGboost Report %r' % (classification_report(y_test, pred)))
+    
+    #accuracy
+    print("\n Accuracy for the model : %.2f" % (accuracy_score(y_test, pred) * 100))
+
+for i in range(3,10):
+    model = xgb.XGBClassifier(max_depth=i,learning_rate=0.1)
+    train_model = model.fit(X_train, y_train)
+    
+    #prediction
+    pred = train_model.predict(X_test)
+   # print('Model XGboost Report %r' % (classification_report(y_test, pred)))
+    
+    #accuracy
+    print("\n Accuracy for the model : %.2f" % (accuracy_score(y_test, pred) * 100))
+
+bestacc= {}
+for i in range(1,1000):
+    model = xgb.XGBClassifier(max_depth=3,learning_rate=0.6,gamma = i *0.01 )
+    train_model = model.fit(X_train, y_train)
+    
+    #prediction
+    pred = train_model.predict(X_test)
+   # print('Model XGboost Report %r' % (classification_report(y_test, pred)))
+    
+    #accuracy
+    print("\n Accuracy for the model for gamma ",i*0.01," : %.2f" % (accuracy_score(y_test, pred) * 100))
+    bestacc.update({(i*0.01):(accuracy_score(y_test, pred) * 100)})
+print(max(bestacc, key=bestacc.get))
+
+for i in range(1,7):
+    model = xgb.XGBClassifier(max_depth=3,learning_rate=0.6,gamma=0.01,min_child_weight=i)
+    train_model = model.fit(X_train, y_train)
+    
+    #prediction
+    pred = train_model.predict(X_test)
+   # print('Model XGboost Report %r' % (classification_report(y_test, pred)))
+    
+    #accuracy
+    print("\n Accuracy for the model : %.2f" % (accuracy_score(y_test, pred) * 100))
+
+for i in range(1,11):
+    model = xgb.XGBClassifier(max_depth=3,colsample_bytree=0.7,learning_rate=0.6,gamma=0.01,min_child_weight=1,subsample=i*0.1)
+    train_model = model.fit(X_train, y_train)
+    
+    #prediction
+    pred = train_model.predict(X_test)
+   # print('Model XGboost Report %r' % (classification_report(y_test, pred)))
+    
+    #accuracy
+    print("\n Accuracy for the model : %.2f" % (accuracy_score(y_test, pred) * 100))
+
+"""
