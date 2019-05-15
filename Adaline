@@ -1,0 +1,125 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri May 10 17:03:46 2019
+
+@author: Guillaume
+"""
+
+import pandas as pd
+from random import uniform
+import matplotlib.pyplot as plt
+
+#initialize X
+X1= [2,1]
+X2= [0,-1]
+X3= [-2,1]
+X4= [0,2]
+
+#Initialize w
+w1 = -0.7
+w2 = 0.2
+theta = 0.5
+
+#predicted
+d1 = 1
+d2 = 1
+d3 = 0
+d4 = 0
+
+#function
+def function(x1,x2,w1,w2,theta,d,error):
+    w = ((w1*x1)+(w2*x2)+(theta))
+    if w < 0:
+        y = 0
+        if y != d:
+            w1 = w + x1*d
+            w2 = w + x2*d
+            #theta = theta + d
+            error += 1
+    else:
+        y = 1
+        if y != d:
+            w1 = w + x1*d
+            w2 = w + x2*d
+            #theta += d
+            error += 1
+    return round(w1,3),round(w2,3),error
+
+error = 1
+i=0
+while error != 0:
+    error = 0
+    i+=1
+    w1,w2,error = function(X1[0],X1[1],w1,w2,theta,d1,error)
+    print("W1 ",w1," W2 ",w2)
+    w1,w2,error = function(X2[0],X2[1],w1,w2,theta,d2,error)
+    print("W1 ",w1," W2 ",w2)
+    w1,w2,error = function(X3[0],X3[1],w1,w2,theta,d3,error)
+    print("W1 ",w1," W2 ",w2)
+    w1,w2,error = function(X4[0],X4[1],w1,w2,theta,d4,error)
+    print("W1 ",w1," W2 ",w2)
+    print("Pourcetange d'erreur :", 100*(error/4),"% \n")
+    
+print("nombre d'itération avant d'arriver à 0 erreurs :", i,"\n")
+
+#Adaline
+#initialize X
+X1= [0,0]
+X2= [0,1]
+X3= [1,0]
+X4= [1,1]
+
+#Initialize w
+w1 = -0.5
+w2 = 0.5
+theta = 0.5
+
+#predicted
+d1 = 0
+d2 = 1
+d3 = 2
+d4 = 3
+
+#learning rate
+learning_rate=0.2
+#function adaline
+def adaline(x1,x2,w1,w2,theta,d,error):
+    y = ((w1*x1)+(w2*x2)+(theta))
+    if y !=d : 
+        error = (d-y)
+        w1 = w1 + x1* learning_rate * error
+        w2 = w2 + x2* learning_rate *error
+        theta = theta + (d-y)
+
+
+    return round(w1,3),round(w2,3),abs(error),round(theta,3),round(y,3)
+
+listerror = [1]
+error = 1
+i=0
+tendance = []
+for i in range(30):
+    w1,w2,error,theta,y = adaline(X1[0],X1[1],w1,w2,theta,d1,error)
+    print("W1 ",w1," W2 ",w2,"theta ",theta, "Actual",y,"Desired",d1)
+    listerror.append(error)
+    #tendance.append(abs(listerror[i]-listerror[i-1]))
+    w1,w2,error,theta,y = adaline(X2[0],X2[1],w1,w2,theta,d2,error)
+    print("W1 ",w1," W2 ",w2,"theta ",theta, "Actual",y,"Desired",d2)
+    listerror.append(error)
+    #tendance.append(abs(listerror[i]-listerror[i-1]))
+    w1,w2,error,theta,y = adaline(X3[0],X3[1],w1,w2,theta,d3,error)
+    print("W1 ",w1," W2 ",w2,"theta ",theta, "Actual",y,"Desired",d3)
+    listerror.append(error)
+    #tendance.append(abs(listerror[i]-listerror[i-1]))
+    w1,w2,error,theta,y = adaline(X4[0],X4[1],w1,w2,theta,d4,error)
+    print("W1 ",w1," W2 ",w2,"theta ",theta, "Actual",y,"Desired",d4)
+    listerror.append(error)
+    tendance.append(abs(listerror[i]-listerror[i-1]))
+    print("Pourcentage d'erreur :", round(error*100,4),"% \n")
+    
+plt.plot(listerror,label="error rate")
+#plt.plot(tendance)
+plt.xlabel("Number of iteration")
+plt.ylabel("Pourcentage of error")
+plt.legend()
+plt.show()
