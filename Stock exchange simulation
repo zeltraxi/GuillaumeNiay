@@ -1,0 +1,125 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue May 21 01:21:35 2019
+
+@author: Guillaume
+"""
+
+from statistics import mean
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+
+
+#initialize number of simulacion
+sims = int(input("Number of simulation you wanna make: \n"))
+final,final1,final2,final3 = [],[],[],[]
+promedio,promedio1,promedio2,promedio3 = [],[],[],[]
+for l in range(sims):
+    #stock exchange normalization price
+    stockprice= [100]
+    #daystock = []
+    #dif = []
+    cashheld,cashheld1,cashheld2,cashheld3 = 50000,50000, 50000,50000
+    shareheld,shareheld1,shareheld2,shareheld3 = 500,500,500,500
+    sharepurchase,sharepurchase1,sharepurchase2,sharepurchase3 = 0,0,0,0
+    sharesold,sharesold1,sharesold2,sharesold3 = 0,0,0,0
+    for i in range(30):
+        """Course simulation"""
+        ran = np.random.rand()
+        ppf =  norm.ppf(ran)
+        x = ppf * 0.2 + 100
+        #daystock.append(np.sum(stockprice)/(i+1))
+        #print(stockprice)
+        cashheld = cashheld + (stockprice[i]*(sharesold-sharepurchase))
+        sharesold = 0
+        sharepurchase= 0
+        if x < stockprice[i-1]:
+            sharepurchase = round(0.001*cashheld)
+        else:
+            sharesold = round(0.001*cashheld)
+        shareheld = shareheld + (sharepurchase - sharesold) 
+        totalworth = cashheld+ (x*shareheld)
+        totalworth = round(totalworth,2)
+        
+        """more agressive approach"""
+        cashheld1 = cashheld1 + (stockprice[i]*(sharesold1-sharepurchase1))
+        sharesold1 = 0
+        sharepurchase1 = 0
+        if x < stockprice[i-1]:
+            sharepurchase1 = round(0.005*cashheld1)
+        else:
+            sharesold1 = round(0.005*cashheld1)
+        shareheld1 = shareheld1 + (sharepurchase1 - sharesold1) 
+        totalworth1 = cashheld1+ (x*shareheld1)
+        totalworth1 = round(totalworth1,2)
+        
+        """opposite approach"""
+        cashheld2 = cashheld2 + (stockprice[i]*(sharesold2-sharepurchase2))
+        sharesold2 = 0
+        sharepurchase2 = 0
+        if x < stockprice[i-1]:
+            sharesold2 = round(0.0005*cashheld2)
+        else:
+            sharepurchase2 = round(0.0005*cashheld2)
+        shareheld2 = shareheld2 + (sharesold2-sharepurchase2) 
+        totalworth2 = cashheld2+ (x*shareheld2)
+        totalworth2 = round(totalworth2,2)
+        
+        """opposite agresive approach"""
+        cashheld3 = cashheld3 + (stockprice[i]*(sharesold3-sharepurchase3))
+        sharesold3 = 0
+        sharepurchase3 = 0
+        if x < stockprice[i-1]:
+            sharesold3 = round(0.001*cashheld3)
+        else:
+            sharepurchase3 = round(0.001*cashheld3)
+        shareheld3 = shareheld3 + (sharepurchase3 - sharesold3) 
+        totalworth3 = cashheld3 + (x*shareheld3)
+        totalworth3 = round(totalworth3,2)
+        
+        stockprice.append(x)
+        #print(shareheld) 
+        #print(daystock)
+
+    #difference price
+    #dif.append(np.subtract(stockprice,daystock))
+    #print(dif)
+    #print("Stock price final " ,round(x,2),"Pesos")
+    #print("Total worth final course technique " ,totalworth,"Pesos \n")    
+    #print("Total worth final more agressive technique " ,totalworth1,"Pesos \n")
+    #print("Total worth final opposite course technique " ,totalworth2,"Pesos \n")
+    #print("Total worth final opposite course technique " ,totalworth3,"Pesos \n")
+    final.append(totalworth)
+    final1.append(totalworth1)
+    final2.append(totalworth2)
+    final3.append(totalworth3)
+    medio = round((np.sum(final)) / (l+1),2)
+    promedio.append(medio)
+    medio1 = round((np.sum(final1)) / (l+1),2)
+    promedio1.append(medio1)
+    medio2 = round(np.sum(final2) / (l+1),2)
+    promedio2.append(medio2)
+    medio3 = round((np.sum(final3)) / (l+1),2)
+    promedio3.append(medio3)
+
+"""
+print(final)
+print(final1)
+print(final2)
+"""
+print("course technique average ",promedio[-1], "Pesos")
+print("agressive technique average ",promedio1[-1], "Pesos")
+print("opposite course technique average ",promedio2[-1], "Pesos")
+print("opposite agresive technique average ",promedio3[-1], "Pesos")
+
+
+plt.plot(promedio,label="course technique")
+plt.plot(promedio1,label="agressive technique")
+plt.plot(promedio2,label="opposite course technique")
+plt.plot(promedio3,label="opposite agresive technique")
+plt.xlabel("Number of simulation")
+plt.ylabel("Dinero")
+plt.title("Average of money we get per technique")
+plt.legend()
+plt.show()
