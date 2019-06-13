@@ -1,0 +1,76 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jun 13 19:22:09 2019
+
+@author: Guillaume
+"""
+from Crypto.PublicKey import RSA
+import Crypto.Random
+import binascii
+
+#BDD wallet
+wallet = []
+
+#wallet function
+def create_wallet(name):
+    address =  RSA.generate(1024,Crypto.Random.new().read)
+    amount = float(input("How much money you want to get into your account? "))
+    return name,(binascii.hexlify(address.exportKey(format='DER')).decode('ascii')),amount
+
+name,wallet_address,amount = create_wallet('Guillaume')
+wallet.append(name)
+wallet.append(wallet_address)
+wallet.append(amount)
+name,wallet_address,amount = create_wallet('Laura')
+wallet.append(name)
+wallet.append(wallet_address)
+wallet.append(amount)
+
+#check sender receiver function
+def sender_receiver():
+    sender = input("Who is the sender? ")
+    receiver = input("Who is the receiver? ")
+    for i in range(len(wallet)):
+        if sender == wallet[i]:
+            address_sender = wallet[i+1]
+            amount_sender = wallet[i+2]
+        else:
+            pass
+    for i in range(len(wallet)):
+        if receiver == wallet[i]:
+            address_receiver = wallet[i+1]
+            amount_receiver= wallet[i+2]
+        else:
+            pass
+        
+    return sender,address_sender,amount_sender,receiver,address_receiver,amount_receiver
+
+#transaction function
+def transaction(crypto,sender,address_sender,amount_sender,receiver,address_receiver,amount_receiver):
+    amount = float(input("How much? "))
+    miner = float(input("How much you wanna give to the miner ? "))
+
+
+    print("Transaction from ",address_sender,"\nto ", address_receiver,"\n \n \n-----------------successfull----------------------")    
+    print("\n \nSender name ",sender)
+    print("Amount ",amount,"",crypto)
+    print("Receiver name ",receiver)
+    print("Miner donation ", miner,"",crypto)
+    print("Total amount spend in the transaction ",round(amount+miner,5),"",crypto,"\n")
+    print("-----------------successfull----------------------")
+    amount_sender -= amount
+    amount_receiver += amount
+    print(sender, " now have: ",amount_sender)
+    print(receiver, " now have: ",amount_receiver)
+    
+#initialize transaction
+currency = input("Transaction in EURO or CRYPTO? ")
+if currency in ('EURO','euro','Euro'):
+    crypto = '€'
+    sender,address_sender,amount_sender,receiver,address_receiver,amount_receiver = sender_receiver()
+    transaction(crypto,sender,address_sender,amount_sender,receiver,address_receiver,amount_receiver)
+else:
+    crypto = input("What Crypto you wanna use? ")
+    sender,address_sender,receiver,address_receiver = sender_receiver()
+    transaction(crypto,sender,address_sender,amount_sender,receiver,address_receiver,amount_receiver)
+    
