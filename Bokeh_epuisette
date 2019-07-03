@@ -1,0 +1,502 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jul  1 09:51:08 2019
+
+@author: gn01.octave
+"""
+
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jun 26 10:40:34 2019
+
+@author: gn01.octave
+"""
+import pandas as pd
+from math import pi
+from bokeh.io import output_file, show
+from bokeh.palettes import Category20c,Category20,viridis
+from bokeh.plotting import figure,curdoc
+from bokeh.transform import cumsum,factor_cmap
+from bokeh.models import BasicTickFormatter
+from bokeh.layouts import column,row
+from bokeh.models import HoverTool, value, LabelSet, Legend, ColumnDataSource,FactorRange,LinearColorMapper,BasicTicker, PrintfTickFormatter, ColorBar
+import numpy as np
+from bokeh.models.widgets import CheckboxGroup
+import itertools
+
+
+dataset = pd.read_csv(r"C:\Users\gn01.octave\Desktop\csv\EPUISETTE FOND ECO.csv",encoding = "ISO-8859-1",error_bad_lines=False,sep=";")
+
+#Client par region
+clientregion = dataset.groupby(["region"]).count()
+clientregion = clientregion.iloc[:,0]
+listregion = list(clientregion.index)
+recl = figure(x_range= listregion, plot_height=500,plot_width=800, title="Enseigne CA")
+recl.vbar(x= listregion, top=clientregion, width=0.9, fill_alpha = 0.75,color=Category20[len(clientregion)], hover_fill_color = 'red',hover_line_color="red",
+       hover_fill_alpha = 1.0)
+#hover
+recl.add_tools(HoverTool(tooltips=[("Region", "@x"), ("Nombre de clients", "@top{int}")]))
+
+recl.xgrid.grid_line_color = None
+recl.y_range.start = 0
+recl.xaxis.axis_label = 'Région'
+recl.yaxis.axis_label = 'Nombre de clients'
+recl.yaxis.formatter = BasicTickFormatter(use_scientific=False)
+
+#CA PAR REGION
+dataset = pd.read_csv(r"C:\Users\gn01.octave\Desktop\csv\EPUISETTE FOND ECO.csv",encoding = "ISO-8859-1",error_bad_lines=False,sep=";")
+regionca = round(dataset.groupby(["region"])["CA"].sum())
+reca = figure(x_range= listregion, plot_height=500,plot_width=800, title="Chiffre d\'affaire par région")
+reca.vbar(x= listregion, top=regionca, width=0.9, fill_alpha = 0.75,color=Category20[len(regionca)], hover_fill_color = 'red',hover_line_color="red",
+       hover_fill_alpha = 1.0)
+
+#hover
+reca.add_tools(HoverTool(tooltips=[("Region", "@x"), ("Chiffre d\'affaire", "@top{int} €")]))
+
+reca.xgrid.grid_line_color = None
+reca.y_range.start = 0
+reca.xaxis.axis_label = 'Région'
+reca.yaxis.axis_label = 'Chiffre d\'affaire'
+reca.yaxis.formatter = BasicTickFormatter(use_scientific=False)
+
+
+
+#PAR AN
+dataset = pd.read_csv(r"C:\Users\gn01.octave\Desktop\csv\EPUISETTE FOND ECO.csv",encoding = "ISO-8859-1",error_bad_lines=False,sep=";")
+dataset["annee"] = dataset["annee"].astype(str)
+caan = dataset.groupby(["annee"])["CA"].sum()
+caan = caan[:4]
+label = ["2016","2017","2018","2019"]
+ycaan = list(caan)
+caan = figure(x_range= label, plot_height=500,plot_width=400, title="CA par an")
+caan.vbar(x= label, top=ycaan, width=0.9, fill_alpha = 0.75,
+       hover_fill_alpha = 1.0, hover_fill_color = 'red',hover_line_color="red")
+#hover
+caan.add_tools(HoverTool(tooltips=[("Année", "@x"), ("CA", "@top{int} €")]))
+
+caan.xgrid.grid_line_color = None
+caan.y_range.start = 0
+caan.xaxis.axis_label = 'Année'
+caan.yaxis.axis_label = 'Chiffre d\'affaire'
+caan.yaxis.formatter = BasicTickFormatter(use_scientific=False)
+
+#DATETIME
+dataset = pd.read_csv(r"C:\Users\gn01.octave\Desktop\csv\EPUISETTE FOND ECO.csv",encoding = "ISO-8859-1",error_bad_lines=False,sep=";")
+dataset = dataset.dropna(subset=['annee'])
+dateachat = dataset.groupby(["mois","annee"])["CA"].sum()
+dateachat = dateachat.unstack()  
+#dateachat = dateachat.rename(index={1:"Janvier",2:"Fevrier",3:"Mars",4:"Avril",5:"Mai",6:"Juin",7:"Juillet",8:"Aout",9:"Septembre",10:"Octobre",11:"Novembre",12:"Décembre"})
+labelmois = ["Janvier","Fevrier","Mars","Avril","Mai","Juin","Juillet","Aout","Septembre","Octobre","Novembre","Decembre"]
+dateachat = dateachat.fillna(0)
+palette = ["#c9d9d3", "#718dbf", "#e84d60","green"]
+TOOLS = 'save,pan,box_zoom,reset,wheel_zoom,hover'
+x = [ (month, year) for month in labelmois for year in label ]
+year = label * 12
+counts = sum(zip(dateachat[2016], dateachat[2017], dateachat[2018], dateachat[2019]), ())
+counts = sum(zip(dateachat[2016], dateachat[2017], dateachat[2018], dateachat[2019]), ())
+source = ColumnDataSource(data=dict(x=x, counts=counts))
+source.add(year,name="year")
+
+datey = figure(x_range=FactorRange(*x), plot_height=500,  plot_width = 1400,title="Evolution du CA selon l'année")
+
+datey.vbar(x='x', top='counts', width=0.9, source=source, line_color="white",
+       fill_color=factor_cmap('x', palette=palette, factors=label, start=1, end=2),hover_fill_alpha = 1.0, hover_fill_color = 'red',hover_line_color="red",legend='year')
+
+#datey.legend.title = 'Ventes par année'
+#hover
+datey.add_tools(HoverTool(tooltips=[('Mois', '@x'),('Chiffre d\'affaire', '@counts{int} €')]))
+
+
+datey.yaxis.formatter = BasicTickFormatter(use_scientific=False)
+datey.xaxis.axis_label_text_font_size = '8pt'
+
+#PAR MOIS
+camois = dataset.groupby(["mois"])["CA"].sum()
+camois = camois.rename(index={1:"Janvier",2:"Fevrier",3:"Mars",4:"Avril",5:"Mai",6:"Juin",7:"Juillet",8:"Aout",9:"Septembre",10:"Octobre",11:"Novembre",12:"Décembre"})
+TOOLS = 'save,pan,box_zoom,reset,wheel_zoom,hover'
+mes = figure(title="CA par mois", y_axis_type="linear", plot_height = 500,
+           tools = TOOLS, plot_width = 800, x_range=["Janvier","Fevrier","Mars","Avril","Mai","Juin","Juillet","Aout","Septembre","Octobre","Novembre","Décembre"])
+mes.xaxis.axis_label = 'Mois'
+mes.yaxis.axis_label = 'CA'
+mes.yaxis.formatter = BasicTickFormatter(use_scientific=False)
+mes.xaxis.major_label_orientation = np.pi/4
+mes.line(camois.index, camois,line_color="blue", line_width = 2)
+mes.vbar(x= camois.index, top = camois, width=0.9, fill_alpha = 0.75,
+       hover_fill_alpha = 1.0, hover_fill_color = 'red',hover_line_color="red")
+mes.select_one(HoverTool).tooltips = [
+    ('Mois', '@x'),
+    ('Chiffre d\'affaire', '@top{int} €'),
+]
+#multi
+dataset = pd.read_csv(r"C:\Users\gn01.octave\Desktop\csv\EPUISETTE FOND ECO.csv",encoding = "ISO-8859-1",error_bad_lines=False,sep=";")
+
+for i in range()
+ca2016 = dataset[dataset["annee"] == 2016]
+ca2016 = ca2016.groupby(["mois"])["CA"].sum()
+ca2017 = dataset[dataset["annee"] == 2017]
+ca2017 = ca2017.groupby(["mois"])["CA"].sum()
+ca2018 = dataset[dataset["annee"] == 2018]
+ca2018 = ca2018.groupby(["mois"])["CA"].sum()
+ca2019 = dataset[dataset["annee"] == 2019]
+ca2019 = ca2019.groupby(["mois"])["CA"].sum()
+ca = pd.DataFrame([ca2016,ca2017,ca2018,ca2019],index=label)
+ca = ca.rename(columns={1:"Janvier",2:"Fevrier",3:"Mars",4:"Avril",5:"Mai",6:"Juin",7:"Juillet",8:"Aout",9:"Septembre",10:"Octobre",11:"Novembre",12:"Décembre"})
+ca =ca.fillna(0)
+#ca= ca.values.tolist()
+labelmois = ["Janvier","Fevrier","Mars","Avril","Mai","Juin","Juillet","Aout","Septembre","Octobre","Novembre","Decembre"]
+
+datam = {'annee' : label,
+        'Janvier'   : list(round(ca.iloc[:,0])),
+        'Fevrier'   : list(round(ca.iloc[:,1])),
+        'Mars'      : list(round(ca.iloc[:,2])),
+        'Avril'     : list(round(ca.iloc[:,3])),        
+        'Mai'       : list(round(ca.iloc[:,4])),
+        'Juin'      : list(round(ca.iloc[:,5])),        
+        'Juillet'   : list(round(ca.iloc[:,6])),
+        'Aout'      : list(round(ca.iloc[:,7])),
+        'Septembre' : list(round(ca.iloc[:,8])),
+        'Octobre'   : list(round(ca.iloc[:,9])),
+        'Novembre'  : list(round(ca.iloc[:,10])),
+        'Decembre'  : list(round(ca.iloc[:,11]))        
+        }
+datam_df = pd.DataFrame(datam)        
+caanm = figure(x_range= label, plot_height=500,plot_width=800, title="Chiffre d\'affaire par mois selon les jours")
+renderer = caanm.vbar_stack(labelmois,x= "annee",  width=0.9, color=Category20[12] ,source=datam,legend=[value(x) for x in labelmois], hover_fill_color = Category20[12],hover_line_color=Category20[12])
+for r in renderer:
+    year = r.name
+    hover = HoverTool(tooltips=[
+        ("%s CA" % year, "@%s €" % year),
+    ], renderers=[r])
+    caanm.add_tools(hover)
+
+caanm.y_range.start = 0
+caanm.x_range.range_padding = 0.1
+caanm.xgrid.grid_line_color = None
+caanm.yaxis.formatter = BasicTickFormatter(use_scientific=False)
+caanm.axis.minor_tick_line_color = None
+caanm.outline_line_color = None
+
+#PAR JOUR
+labeljour = ['Lundi', 'Mardi', 'Mercredi','Jeudi','Vendredi','Samedi']
+dataset = pd.read_csv(r"C:\Users\gn01.octave\Desktop\csv\EPUISETTE FOND ECO.csv",encoding = "ISO-8859-1",error_bad_lines=False,sep=";")
+cajour = dataset.groupby(["jour_semaine"])["CA"].sum()
+cajour = cajour.reindex(index = labeljour)
+xcajour = list(cajour.index)
+ycajour = list(cajour)
+jour = figure(x_range= xcajour, plot_height=500,plot_width=800, title="Chiffre d\'affaire selon le jour de la semaine")
+jour.vbar(x= xcajour, top=ycajour, width=0.9, fill_alpha = 0.75,
+       hover_fill_alpha = 1.0, hover_fill_color = 'red',hover_line_color="red")
+#hover
+jour.add_tools(HoverTool(tooltips=[("Enseigne", "@x"), ("CA", "@top{int} €")]))
+
+jour.xgrid.grid_line_color = None
+jour.y_range.start = 0
+jour.xaxis.axis_label = 'Année'
+jour.yaxis.axis_label = 'Chiffre d\'affaire'
+jour.yaxis.formatter = BasicTickFormatter(use_scientific=False)
+
+dataset = pd.read_csv(r"C:\Users\gn01.octave\Desktop\csv\EPUISETTE FOND ECO.csv",encoding = "ISO-8859-1",error_bad_lines=False,sep=";")
+
+cajan = dataset[dataset["mois"] == 1]
+cajan = cajan.groupby(["jour_semaine"])["CA"].sum()
+cafev = dataset[dataset["mois"] == 2]
+cafev = cafev.groupby(["jour_semaine"])["CA"].sum()
+camar = dataset[dataset["mois"] == 3]
+camar = camar.groupby(["jour_semaine"])["CA"].sum()
+caavr = dataset[dataset["mois"] == 4]
+caavr = caavr.groupby(["jour_semaine"])["CA"].sum()
+camai = dataset[dataset["mois"] == 5]
+camai = camai.groupby(["jour_semaine"])["CA"].sum()
+cajuin = dataset[dataset["mois"] == 6]
+cajuin = cajuin.groupby(["jour_semaine"])["CA"].sum()
+cajuil = dataset[dataset["mois"] == 7]
+cajuil = cajuil.groupby(["jour_semaine"])["CA"].sum()
+caaout = dataset[dataset["mois"] == 8]
+caaout = caaout.groupby(["jour_semaine"])["CA"].sum()
+casep = dataset[dataset["mois"] == 9]
+casep = casep.groupby(["jour_semaine"])["CA"].sum()
+caoct = dataset[dataset["mois"] == 10]
+caoct = caoct.groupby(["jour_semaine"])["CA"].sum()
+canov = dataset[dataset["mois"] == 11]
+canov = canov.groupby(["jour_semaine"])["CA"].sum()
+cadec = dataset[dataset["mois"] == 12]
+cadec = cadec.groupby(["jour_semaine"])["CA"].sum()
+
+caj = pd.DataFrame([cajan,cafev,camar,caavr,camai,cajuin,cajuil,caaout,casep,caoct,canov,cadec],index=labelmois)
+caj =caj.fillna(0)
+
+data = {'mois' : labelmois,
+        'Lundi'   : list(round(caj.iloc[:,1])),
+        'Mardi'   : list(round(caj.iloc[:,2])),
+        'Mercredi'      : list(round(caj.iloc[:,3])),
+        'Jeudi'     : list(round(caj.iloc[:,0])),        
+        'Vendredi'       : list(round(caj.iloc[:,5])),
+        'Samedi'      : list(round(caj.iloc[:,4]))           
+        }
+
+caanj = figure(x_range= labelmois, plot_height=500,plot_width=800, title="Chiffre d\'affaire selon le jour de la semaine par mois")
+renderer = caanj.vbar_stack(labeljour,x= "mois",  width=0.9, color=Category20[6] ,source=data,legend=[value(x) for x in labeljour], fill_alpha = 0.75,
+       hover_fill_alpha = 1.0,hover_fill_color=Category20[6],hover_line_color=Category20[6])
+
+for i in renderer:
+    mois = i.name
+    hover = HoverTool(tooltips=[
+        ("%s CA" % mois, "@%s €" % mois ),
+    ], renderers=[i])
+    caanj.add_tools(hover)
+
+
+caanj.yaxis.formatter = BasicTickFormatter(use_scientific=False)
+
+#DATETIME
+dataset = pd.read_csv(r"C:\Users\gn01.octave\Desktop\csv\EPUISETTE FOND ECO.csv",encoding = "ISO-8859-1",error_bad_lines=False,sep=";")
+dataset = dataset.dropna(subset=['annee'])
+caevol = pd.DataFrame({'year':dataset.annee,"month":dataset.mois,"day":dataset.jour_mois})
+caevol = caevol.dropna()
+caevol = caevol.astype(int)
+caevol = pd.to_datetime(caevol)  
+caevol = pd.DataFrame({'Date':caevol, 'CA':dataset.CA})
+caevol = caevol.sort_values(by="Date")
+TOOLS = 'save,pan,box_zoom,reset,wheel_zoom,hover'
+evoca = figure(title="Evolution du CA", y_axis_type="linear", plot_height = 500,
+           tools = TOOLS, plot_width = 800,x_axis_type="datetime")
+evoca.xaxis.axis_label = 'année'
+evoca.yaxis.axis_label = 'CA'
+evoca.yaxis.formatter = BasicTickFormatter(use_scientific=False)
+evoca.line(x=caevol["Date"], y=caevol["CA"],line_color="green", line_width = 2)
+evoca.line(x=caevol["Date"], y=caevol["CA"].cumsum(),line_color="blue", line_width = 2)
+evoca.select_one(HoverTool).tooltips = [
+        ('Date','@x{%F}'),
+    ('Chiffre d\'affaire du jour', '@y{int} €'),
+]
+evoca.select_one(HoverTool).formatters = {'x':'datetime'}
+evoca.select_one(HoverTool).mode = 'vline'
+
+
+camonth = dataset.groupby(["jour_mois","mois"])["CA"].sum()
+camonth = camonth.unstack()  
+camonth = camonth.fillna(0)
+
+TOOLS = 'save,pan,box_zoom,reset,wheel_zoom,hover'
+camo = figure(title="Evolution du CA selon le mois", y_axis_type="linear", plot_height = 500,
+           tools = TOOLS, plot_width = 800)
+
+camo.xaxis.axis_label = 'Date'
+camo.yaxis.axis_label = 'CA'
+camo.yaxis.formatter = BasicTickFormatter(use_scientific=False)
+#palette
+from bokeh.palettes import Dark2_5 as palette
+
+#colors has a list of colors which can be used in plots 
+colors = itertools.cycle(palette) 
+legend_it = []
+for i in range(12):
+    p = camo.line(x=camonth.index, y=camonth.iloc[:,i].cumsum(),line_color=next(colors), line_width = 2)
+    legend_it.append((labelmois[i], [p]))
+#datey.legend.title = 'Ventes par année'
+camo.select_one(HoverTool).tooltips = [
+    ("Date", "@x")    ,
+    ('Chiffre d\'affaire', '@y{int} €'),
+]
+
+legend = Legend(items=legend_it)
+camo.add_layout(legend, 'right')
+
+#CA region par enseigne
+dataset = pd.read_csv(r"C:\Users\gn01.octave\Desktop\csv\EPUISETTE FOND ECO.csv",encoding = "ISO-8859-1",error_bad_lines=False,sep=";")
+enseigne = dataset.groupby(["region","Enseigne"])["CA"].sum()
+enseigne = enseigne.unstack()
+enseigne = enseigne.fillna(0) 
+enseigne.columns = enseigne.columns.str.replace('-','') 
+enseigne.columns = enseigne.columns.str.replace(' ','') 
+listenseigne = list(enseigne.columns)
+region = list(enseigne.index)
+
+
+datareg = {'region' : region,
+        "21ADIJON":list(round(enseigne.iloc[:,0])),
+        "CASHPOOLWEB":list(round(enseigne.iloc[:,1])),
+        "17ASAINTES":list(round(enseigne.iloc[:,2])),
+        "17BLAROCHELLE":list(round(enseigne.iloc[:,3])),
+        "17CROYAN":list(round(enseigne.iloc[:,4])),
+        "19ABRIVE":list(round(enseigne.iloc[:,5])),
+        "24ABERGERAC":list(round(enseigne.iloc[:,6])),
+        "24BPERIGUEUX":list(round(enseigne.iloc[:,7])),
+        "24CSARLAT":list(round(enseigne.iloc[:,8])),
+        "33ALANGON":list(round(enseigne.iloc[:,9])),
+        "33BSAINTJEANDILLAC":list(round(enseigne.iloc[:,10])),
+        "33CLATESTE":list(round(enseigne.iloc[:,11])),
+        "33DARTIGUES":list(round(enseigne.iloc[:,12])),
+        "33EEYSINES":list(round(enseigne.iloc[:,13])),
+        "33FSAINTANDREDECUBZAC":list(round(enseigne.iloc[:,14])),
+        "33GBIGANOS":list(round(enseigne.iloc[:,15])),
+        "40AMONTDEMARSAN":list(round(enseigne.iloc[:,16])),
+        "40BSAINTPAULLESDAX":list(round(enseigne.iloc[:,17])),
+        "47AMARMANDE":list(round(enseigne.iloc[:,18])),
+        "47BVILLENEUVESURLOT":list(round(enseigne.iloc[:,19])),
+        "47CAGEN":list(round(enseigne.iloc[:,20])),
+        "64ALESCAR":list(round(enseigne.iloc[:,21])),
+        "64BPAU":list(round(enseigne.iloc[:,22])),
+        "64COLORONSAINTEMARIE":list(round(enseigne.iloc[:,23])),
+        "64DSAINTJEANDELUZ":list(round(enseigne.iloc[:,24])),
+        "65ATARBES":list(round(enseigne.iloc[:,25])),
+        "79ANIORT":list(round(enseigne.iloc[:,26])),
+        "85ALAROCHESURYON":list(round(enseigne.iloc[:,27])),
+        "86APOITIERS":list(round(enseigne.iloc[:,28])),
+        "87ALIMOGES":list(round(enseigne.iloc[:,29])),
+        "CALLCENTER":list(round(enseigne.iloc[:,30])),
+        "01ABOURGENBRESSE":list(round(enseigne.iloc[:,31])),
+        "07AVALENCE":list(round(enseigne.iloc[:,32])),
+        "15AAURILLAC":list(round(enseigne.iloc[:,33])),
+        "26AROMANS":list(round(enseigne.iloc[:,34])),
+        "26BPIERRELATTE":list(round(enseigne.iloc[:,35])),
+        "26CMONTELIMAR":list(round(enseigne.iloc[:,36])),
+        "38ABOURGOINJALLIEU":list(round(enseigne.iloc[:,37])),
+        "42ASAINTETIENNE":list(round(enseigne.iloc[:,38])),
+        "63ACLERMONTFERRAND":list(round(enseigne.iloc[:,39])),
+        "66BPERPIGNAN":list(round(enseigne.iloc[:,40])),
+        "73ACHAMBERY":list(round(enseigne.iloc[:,41])),
+        "74AANNECY":list(round(enseigne.iloc[:,42])),
+        "74BTHONONLESBAINS":list(round(enseigne.iloc[:,43])),
+        "71ACHALONSURSAONE":list(round(enseigne.iloc[:,44])),
+        "37ATOURS":list(round(enseigne.iloc[:,45])),
+        "41ABLOIS":list(round(enseigne.iloc[:,46])),
+        "45AORLEANS":list(round(enseigne.iloc[:,47])),
+        "11ACARCASSONNE":list(round(enseigne.iloc[:,48])),
+        "11BNARBONNE":list(round(enseigne.iloc[:,49])),
+        "12ARODEZ":list(round(enseigne.iloc[:,50])),
+        "30ANIMES":list(round(enseigne.iloc[:,51])),
+        "30BALÈS":list(round(enseigne.iloc[:,52])),
+        "30CLESANGLES":list(round(enseigne.iloc[:,53])),
+        "31APORTETSURGARONNE":list(round(enseigne.iloc[:,54])),
+        "31BTOULOUSE":list(round(enseigne.iloc[:,55])),
+        "32AAUCH":list(round(enseigne.iloc[:,56])),
+        "34ASERVIAN":list(round(enseigne.iloc[:,57])),
+        "34BBEZIERS":list(round(enseigne.iloc[:,58])),
+        "34CMONTPELLIER":list(round(enseigne.iloc[:,59])),
+        "34DSAINTJEANDEVEDAS":list(round(enseigne.iloc[:,60])),
+        "46ACAHORS":list(round(enseigne.iloc[:,61])),
+        "66APRADES":list(round(enseigne.iloc[:,62])),
+        "81AALBI":list(round(enseigne.iloc[:,63])),
+        "81BGAILLAC":list(round(enseigne.iloc[:,64])),
+        "81CCASTRES":list(round(enseigne.iloc[:,65])),
+        "82AMONTAUBAN":list(round(enseigne.iloc[:,66])),
+        "84AMONTFAVET":list(round(enseigne.iloc[:,67])),
+        "CASHPISCINESFRANCE":list(round(enseigne.iloc[:,68])),
+        "44ANANTES":list(round(enseigne.iloc[:,69])),
+        "49AANGERS":list(round(enseigne.iloc[:,70])),
+        "72ALEMANS":list(round(enseigne.iloc[:,71])),
+        "13AAIXVENELLES":list(round(enseigne.iloc[:,72])),
+        "83ATOULON":list(round(enseigne.iloc[:,73])),
+        "83BSAINTMAXIMIN":list(round(enseigne.iloc[:,74])),
+        "83CLASEYNESURMER":list(round(enseigne.iloc[:,75])),
+        "83DLELUC":list(round(enseigne.iloc[:,76])),
+        "83EDRAGUIGNAN":list(round(enseigne.iloc[:,77])),
+        "84BCARPENTRAS":list(round(enseigne.iloc[:,78])),
+     }
+source = ColumnDataSource(data=datareg)
+regen = figure(x_range= region, plot_height=500,plot_width=1800, title="Enseigne CA par region") 
+
+renderer = regen.vbar_stack(listenseigne,x='region', width=0.9,source=source,color=viridis(len(listenseigne)))
+
+#hover
+#regen.add_tools(HoverTool(tooltips=[("Region", "@region"),("Magasin", "@magasin")]))
+for r in renderer:
+    year = r.name
+    hover = HoverTool(tooltips=[
+        ("%s CA" %year, "@%s €" % year),
+    ], renderers=[r])
+    regen.add_tools(hover)
+
+regen.xgrid.grid_line_color = None
+regen.y_range.start = 0
+regen.xaxis.axis_label = 'Enseigne'
+regen.yaxis.axis_label = 'Chiffre d\'affaire'
+regen.yaxis.formatter = BasicTickFormatter(use_scientific=False)
+
+
+enseigne = dataset.groupby(["Enseigne"]).sum()
+
+#enseigne = enseigne.sort_values(by="CA")
+listenseigne = list(enseigne.index)
+
+groupemois = dataset.groupby(["mois"]).count()
+liste = []
+[liste.append(listenseigne[i][:7]) for i in range(len(listenseigne))]
+
+ensca = figure(x_range= liste, plot_height=500,plot_width=1800, title="Enseigne CA")
+ensca.vbar(x=liste, top=enseigne.CA, width=0.9, fill_alpha = 0.75,
+       hover_fill_alpha = 1.0, hover_fill_color = 'red', hover_line_color = 'red')
+#hover
+ensca.add_tools(HoverTool(tooltips=[("Enseigne", "@x"), ("CA", "@top{int} €")]))
+
+ensca.xgrid.grid_line_color = None
+ensca.y_range.start = 0
+ensca.xaxis.axis_label = 'Enseigne'
+ensca.yaxis.axis_label = 'Chiffre d\'affaire'
+ensca.yaxis.formatter = BasicTickFormatter(use_scientific=False)
+#CA par nombre de client
+df = pd.DataFrame(list(zip(clientregion, regionca)),columns=["Client par region","CA par region"],index=clientregion.index)
+df = df.sort_values(by="Client par region")
+source = ColumnDataSource(df)
+source.add(df.index, 'index')
+source.add(df["Client par region"], 'regcl')
+source.add(df["CA par region"], 'regca')
+source.add(Category20[len(df.index)],'color')
+reca = figure(title="CA par client selon la region", y_axis_type="linear", plot_height = 500,
+           tools = TOOLS, plot_width = 800)
+reca.xaxis.axis_label = 'Nombre de client'
+reca.yaxis.axis_label = 'Chiffre d\'affaire'
+reca.yaxis.formatter = BasicTickFormatter(use_scientific=False)
+reca.line(x="Client par region", y='CA par region',source=source, line_width = 1)
+reca.vbar(x="Client par region",top='CA par region',source=source,width=15,color = 'color' , fill_alpha = 0.75, hover_fill_color = "color",hover_line_color="color",
+       hover_fill_alpha = 1.0)
+reca.select_one(HoverTool).tooltips = [("Region", "@index"),("Nombre de clients", "@regcl"),('Chiffre d\'affaire', '@regca{int} €')]
+
+output_file("CA analysis.html")
+
+#hide legend
+"""
+piecl.legend.click_policy="hide"
+pieca.legend.click_policy="hide"
+caanj.legend.click_policy="hide"
+caanm.legend.click_policy="hide"
+caan.legend.click_policy="hide"
+ensca.legend.click_policy="hide"
+datey.legend.click_policy="hide"
+"""
+
+camo.legend.click_policy="hide"
+#show everything
+from bokeh.models.widgets import Tabs, Panel
+# 3 panels
+evoca = Panel(child= row(evoca,camo), title='Evolution CA')
+jour = Panel(child= row(jour,caanj), title='Evolution par jour')
+mes = Panel(child= row(mes,caanm), title='Evolution par mois')
+an = Panel(child= row(caan,datey), title='Evolution par an')
+pie = Panel(child=row(recl,reca), title='Clients par région')
+ensca = Panel(child=column(ensca,regen), title='CA par enseigne')
+tabs = Tabs(tabs=[evoca,jour,mes,an,pie,ensca])
+show(tabs)
+
+
+
+
+
+"""
+# Select the airlines names from the selection values
+[carrier_selection.labels[i] for i in carrier_selection.active]
+def update(attr, old, new):
+    # Get the list of carriers for the graph
+    carriers_to_plot = [carrier_selection.labels[i] for i in 
+                        carrier_selection.active]
+    # Make a new dataset based on the selected carriers and the 
+    # make_dataset function defined earlier
+    new_src = make_dataset(carriers_to_plot,
+                           range_start = -60,
+                           range_end = 120,
+                           bin_width = 5)
+    # Update the source used in the quad glpyhs
+    src.data.update(new_src.data)
+# Link a change in selected buttons to the update function
+carrier_selection.on_change('active', update)"""
